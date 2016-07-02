@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Android," />
 
 
 
@@ -84,15 +84,19 @@
 
 
 
-<meta name="description" content="嫁给我吧">
-<meta property="og:type" content="website">
-<meta property="og:title" content="燕子宝贝">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="对于大型Android，64k方法数限制和线性内存不足是必须要面对的问题，Google给出的解决方案是Multidex，即将代码拆分到几个dex中，以规避64k的上限限制。实际操作过程中，会遇到以下几个问题：1、线性内存限制。解决方案是减少主dex大小，经验值是30k左右，一般在2.x机器上出现，由于产品已经只支持4.0以上rom，这个问题基本可以忽略。2、APP加载非主dex的耗时问题。
+在解决">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Multidex优化">
+<meta property="og:url" content="http://yoursite.com/2016/07/01/multidex/index.html">
 <meta property="og:site_name" content="燕子宝贝">
-<meta property="og:description" content="嫁给我吧">
+<meta property="og:description" content="对于大型Android，64k方法数限制和线性内存不足是必须要面对的问题，Google给出的解决方案是Multidex，即将代码拆分到几个dex中，以规避64k的上限限制。实际操作过程中，会遇到以下几个问题：1、线性内存限制。解决方案是减少主dex大小，经验值是30k左右，一般在2.x机器上出现，由于产品已经只支持4.0以上rom，这个问题基本可以忽略。2、APP加载非主dex的耗时问题。
+在解决">
+<meta property="og:updated_time" content="2016-07-02T03:58:42.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="燕子宝贝">
-<meta name="twitter:description" content="嫁给我吧">
+<meta name="twitter:title" content="Multidex优化">
+<meta name="twitter:description" content="对于大型Android，64k方法数限制和线性内存不足是必须要面对的问题，Google给出的解决方案是Multidex，即将代码拆分到几个dex中，以规避64k的上限限制。实际操作过程中，会遇到以下几个问题：1、线性内存限制。解决方案是减少主dex大小，经验值是30k左右，一般在2.x机器上出现，由于产品已经只支持4.0以上rom，这个问题基本可以忽略。2、APP加载非主dex的耗时问题。
+在解决">
 
 
 
@@ -113,9 +117,9 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="http://yoursite.com/2016/07/01/multidex/"/>
 
-  <title> 燕子宝贝 </title>
+  <title> Multidex优化 | 燕子宝贝 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -134,9 +138,7 @@
   
   
 
-  <div class="container one-collumn  
-   page-home 
- ">
+  <div class="container one-collumn  page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -213,9 +215,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
   
@@ -235,10 +237,7 @@
             
             
               
-                
-                <a class="post-title-link" href="/2016/07/01/multidex/" itemprop="url">
-                  Multidex优化
-                </a>
+                Multidex优化
               
             
           </h1>
@@ -278,9 +277,7 @@
       
 
       
-        
-          
-            <p>对于大型Android，64k方法数限制和线性内存不足是必须要面对的问题，Google给出的解决方案是Multidex，即将代码拆分到几个dex中，以规避64k的上限限制。实际操作过程中，会遇到以下几个问题：<br>1、线性内存限制。解决方案是减少主dex大小，经验值是30k左右，一般在2.x机器上出现，由于产品已经只支持4.0以上rom，这个问题基本可以忽略。<br>2、APP加载非主dex的耗时问题。</p>
+        <p>对于大型Android，64k方法数限制和线性内存不足是必须要面对的问题，Google给出的解决方案是Multidex，即将代码拆分到几个dex中，以规避64k的上限限制。实际操作过程中，会遇到以下几个问题：<br>1、线性内存限制。解决方案是减少主dex大小，经验值是30k左右，一般在2.x机器上出现，由于产品已经只支持4.0以上rom，这个问题基本可以忽略。<br>2、APP加载非主dex的耗时问题。</p>
 <p>在解决问题二之前，先分析一下Google给出的multidex方案。</p>
 <p>官方方案：<br>Googled的multidex support library集成方式非常简单，在gradle里设置相应的变量即可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">defaultConfig &#123;</span><br><span class="line">	multiDexEnable true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>这样编译后会出现多个dex，以classes(N).dex的形式存在，处于安装包根目录，不放在常见的assets下的原因大概是因为art<br>虚拟机在安装时会把所有dex合并为oat文件而后加载。而dalvik虚拟机则只能自行解决非主dex的加载事宜。</p>
@@ -294,130 +291,58 @@
 <p>attachBaseContext的调用时机非常靠前，甚至在Application的onCreate之前，再加上MultiDex.install是同步的，这样可以保证需要加载间接引用类时，已将其所在的dex加载。这个方案的缺点在于，如果非主dex比较大或者比较多，install方法会耗时较长，并且在主线程上运行，那么常见的问题就是黑屏和ANR。</p>
 <p>为解决这个问题，我们将MultiDex.install异步执行，然而在加载完成前，用户代码会开始执行，也就是刚才提到的间接引用类会初始化，那么存在NoClassDef崩溃。针对这个情况，我们采取介入dex分包流程的方案，需要解决两个问题：<br>1、如何干预dex分包流程。<br>2、MultiDex.install改异步后，主线程还会继续运行，从产品体验层面，需要把后台加载dex这个流程约束在启动页阶段，即启动页显示后，等待后台加载结束回调后，才进行后续逻辑。那么需要找出从app启动到启动页显示这段过程中所有用到的类，并把他们分到主dex中，以避免NoClassDef。</p>
 
-          
+      
+    </div>
+
+    <div>
+      
         
       
     </div>
 
     <div>
       
-    </div>
+        
 
-    <div>
       
     </div>
 
     <footer class="post-footer">
       
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/06/17/info/" itemprop="url">
-                  搬家
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-06-17T12:48:50+08:00" content="2016-06-17">
-              2016-06-17
-            </time>
-          </span>
-
+        <div class="post-tags">
           
-
-          
-            
-          
-
-          
-
-          
-          
-
+            <a href="/tags/Android/" rel="tag">#Android</a>
           
         </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          
-            <p>原有的私人博客空间到期，不想续费，改用hexo搭建一个继续玩，接下来会陆续把以前的一些心得搬运过来，作为记录。</p>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/17/info/" rel="next" title="搬家">
+                <i class="fa fa-chevron-left"></i> 搬家
+              </a>
+            
+          </div>
 
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
       
 
       
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -425,6 +350,10 @@
 
 
           
+  <div class="comments" id="comments">
+    
+  </div>
+
 
         </div>
         
@@ -517,6 +446,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
 
   
 
