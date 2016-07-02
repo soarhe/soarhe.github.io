@@ -84,15 +84,15 @@
 
 
 
-<meta name="description" content="嫁给我吧">
+<meta name="description">
 <meta property="og:type" content="website">
-<meta property="og:title" content="燕子宝贝">
+<meta property="og:title" content="soarhe">
 <meta property="og:url" content="http://yoursite.com/index.html">
-<meta property="og:site_name" content="燕子宝贝">
-<meta property="og:description" content="嫁给我吧">
+<meta property="og:site_name" content="soarhe">
+<meta property="og:description">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="燕子宝贝">
-<meta name="twitter:description" content="嫁给我吧">
+<meta name="twitter:title" content="soarhe">
+<meta name="twitter:description">
 
 
 
@@ -115,7 +115,7 @@
 
   <link rel="canonical" href="http://yoursite.com/"/>
 
-  <title> 燕子宝贝 </title>
+  <title> soarhe </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -146,7 +146,7 @@
   <div class="custom-logo-site-title">
     <a href="/"  class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <span class="site-title">燕子宝贝</span>
+      <span class="site-title">soarhe</span>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
@@ -259,6 +259,13 @@
 
           
             
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/07/01/multidex/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/01/multidex/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -279,26 +286,12 @@
 
       
         
-          
-            <p>对于大型Android，64k方法数限制和线性内存不足是必须要面对的问题，Google给出的解决方案是Multidex，即将代码拆分到几个dex中，以规避64k的上限限制。实际操作过程中，会遇到以下几个问题：<br>1、线性内存限制。解决方案是减少主dex大小，经验值是30k左右，一般在2.x机器上出现，由于产品已经只支持4.0以上rom，这个问题基本可以忽略。<br>2、APP加载非主dex的耗时问题。<br>在解决问题二之前，先分析一下Google给出的multidex方案。</p>
-<p><strong><big>官方方案:</big></strong><br>Googled的multidex support library集成方式非常简单，在gradle里设置相应的变量即可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">defaultConfig &#123;</span><br><span class="line">	multiDexEnable true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这样编译后会出现多个dex，以classes(N).dex的形式存在，处于安装包根目录，不放在常见的assets下的原因大概是因为art 虚拟机在安装时会把所有dex合并为oat文件而后加载。而dalvik虚拟机则只能自行解决非主dex的加载事宜。</p>
-<p>dex分包的规则由mainDexClasses脚本确定，它放在sdk build tools的dx.jar里。Gradle编译时会运行它确定哪些类放在主 dex里，需要注意的是编译时不会直接使用这个jar，所以修改它是无效的。dx.jar的流程分为三步：<br>1、环境检查，包括传入参数、路径、proguard等检查。<br>2、通过mainDexClasses规则，再利用proguard裁剪后，生成tmp.jar。<br>3、把tmp.jar转化为主dex的文件列表maindexlist。</p>
-<p>这里的rules只是简单把所有入口类以及直接引用类打入主dex中，所谓直接引用类是指某个类中的方法、变量所引用的类，例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public class A &#123;</span><br><span class="line">	public A() &#123;</span><br><span class="line">		B b = new B();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public class B &#123;</span><br><span class="line">	public B() &#123;</span><br><span class="line">		C c = new C();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public class C &#123;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>A中的构造函数引用到B，B中引用到C，所以B是A的直接引用类，C也是B的直接引用类，而C则是A的间接引用类。</p>
-<p>这样一来，使用默认方法生成的主dex只含有各入口类以及其直接引用类，不包括其间接引用类，因此，需要在Application的<br>attachBaseContext中调用Multidex.install加载其它dex，以避免出现NoclassDef的异常。如果存在这样的代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public class MyApplication extend Application &#123;</span><br><span class="line">	...</span><br><span class="line">	@Override</span><br><span class="line">	protected void attachBaseContext(Context base) &#123;</span><br><span class="line">		...</span><br><span class="line">		// C表示间接引用类</span><br><span class="line">		C c = new C();</span><br><span class="line">		MultiDex.install(this);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>那一定会出现NoClassDef，因为C在非主dex中，这时候还没有加载。</p>
-<p>attachBaseContext的调用时机非常靠前，甚至在Application的onCreate之前，再加上MultiDex.install是同步的，这样可以保证需要加载间接引用类时，已将其所在的dex加载。这个方案的缺点在于，如果非主dex比较大或者比较多，install方法会耗时较长，并且在主线程上运行，那么常见的问题就是黑屏和ANR。</p>
-<p><strong><big>我们的方案</big></strong><br>为解决这个问题，我们将MultiDex.install异步执行，然而在加载完成前，用户代码会开始执行，也就是刚才提到的间接引用类会初始化，那么存在NoClassDef崩溃。针对这个情况，我们采取介入dex分包流程的方案，需要解决两个问题：<br>1、如何干预dex分包流程。<br>2、MultiDex.install改异步后，主线程还会继续运行，从产品体验层面，需要把后台加载dex这个流程约束在启动页阶段，即启动页显示后，等待后台加载结束回调后，才进行后续逻辑。那么需要找出从app启动到启动页显示这段过程中所有用到的类，并把他们分到主dex中，以避免NoClassDef。</p>
-<p>问题1:<br>前面提到过，主dex的类由maindexlist决定，那么事实上，只需要干预这个list的生成就可以达到目的。</p>
-<p>问题2:<br>我们的方案是，利用Dexposed的hook能力，找到启动时都加载了哪些类，然后输出到txt文件（其内容为com.xxx.xxx）里，再使用build tools里的AutoMainDex.jar生成新的txt文件（内容为com.xxx.xxx.class），最后再与maindexlist合并。<br>需要注意的是，在打release包时，扫描出的启动加载类文件为proguard之前的，需要根据mappig额外做一个转换，再进行后续操作。</p>
-<p><strong><big>优点和缺陷：</big></strong><br>我们的方案在体验上远好于系统默认方案，不存在ANR和黑屏问题。但缺点在于难以做到完全自动化，往往存在开发中对启动流程稍有调整，需要主动添加启动类的场景，维护成本较高。</p>
-<p>另外，还存在一个多进程的方案，原理是在Application初始化时，再起一个进程，该进程前台显示启动页，后台加载dex，与此同时，主进程sleep等待。完成dex加载之后再回到主进程进行后续逻辑。优点是可以简单的约束启动依赖集，不必手动增删主dex的list，缺点则是启动逻辑和dex加载仍是串行操作，启动速度稍慢。</p>
-<p>根据目前的数据，多线程的方式启动速度快于多进程，原因在于：多线程主dex大，于是从dex较小，install耗时就会较少，再加上并行操作效率也高于串行操作。但当某一天，启动类的依赖集也超出了65535，那么多线程方案便失效了，这时就是切换到多进程的时机。</p>
-
-          
+          <p>对于大型Android，64k方法数限制和线性内存不足是必须要面对的问题，Google给出的解决方案是Multidex，即将代码拆分到几个dex中，以规避64k的上限限制。实际操作过程中，会遇到以下几个问题：<br>1、线性内存限制。解决方案是减少主dex大小，经验值是30k左右，一般在2.x机器上出现，由于产品已经只支持4.0以上rom，这个问题基本可以忽略。<br>2、APP加载非主dex的耗时问题。<br>在解决问题二之前，先分析一下Google给出的multidex方案。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/07/01/multidex/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -369,6 +362,13 @@
 
           
             
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/06/17/info/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/17/info/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -390,9 +390,15 @@
       
         
           
-            <p>原有的私人博客空间到期，不想续费，改用hexo搭建一个继续玩，接下来会陆续把以前的一些心得搬运过来，作为记录。</p>
+          原有的私人博客空间到期，不想续费，改用hexo搭建一个继续玩，接下来会陆续把以前的一些心得搬运过来，作为记录。
 
           
+
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/06/17/info/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -531,9 +537,28 @@
 
   
 
+  
+    
+  
 
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"soarhe"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
 
   
+    
+  
+
+
 
 
 

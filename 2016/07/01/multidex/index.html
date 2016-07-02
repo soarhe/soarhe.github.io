@@ -88,9 +88,9 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="Multidex优化">
 <meta property="og:url" content="http://yoursite.com/2016/07/01/multidex/index.html">
-<meta property="og:site_name" content="燕子宝贝">
+<meta property="og:site_name" content="soarhe">
 <meta property="og:description" content="对于大型Android，64k方法数限制和线性内存不足是必须要面对的问题，Google给出的解决方案是Multidex，即将代码拆分到几个dex中，以规避64k的上限限制。实际操作过程中，会遇到以下几个问题：1、线性内存限制。解决方案是减少主dex大小，经验值是30k左右，一般在2.x机器上出现，由于产品已经只支持4.0以上rom，这个问题基本可以忽略。2、APP加载非主dex的耗时问题。在解决问">
-<meta property="og:updated_time" content="2016-07-02T08:30:21.000Z">
+<meta property="og:updated_time" content="2016-07-02T08:44:56.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Multidex优化">
 <meta name="twitter:description" content="对于大型Android，64k方法数限制和线性内存不足是必须要面对的问题，Google给出的解决方案是Multidex，即将代码拆分到几个dex中，以规避64k的上限限制。实际操作过程中，会遇到以下几个问题：1、线性内存限制。解决方案是减少主dex大小，经验值是30k左右，一般在2.x机器上出现，由于产品已经只支持4.0以上rom，这个问题基本可以忽略。2、APP加载非主dex的耗时问题。在解决问">
@@ -116,7 +116,7 @@
 
   <link rel="canonical" href="http://yoursite.com/2016/07/01/multidex/"/>
 
-  <title> Multidex优化 | 燕子宝贝 </title>
+  <title> Multidex优化 | soarhe </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -145,7 +145,7 @@
   <div class="custom-logo-site-title">
     <a href="/"  class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <span class="site-title">燕子宝贝</span>
+      <span class="site-title">soarhe</span>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
@@ -255,6 +255,13 @@
 
           
             
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/07/01/multidex/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/01/multidex/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -274,8 +281,7 @@
       
 
       
-        <p>对于大型Android，64k方法数限制和线性内存不足是必须要面对的问题，Google给出的解决方案是Multidex，即将代码拆分到几个dex中，以规避64k的上限限制。实际操作过程中，会遇到以下几个问题：<br>1、线性内存限制。解决方案是减少主dex大小，经验值是30k左右，一般在2.x机器上出现，由于产品已经只支持4.0以上rom，这个问题基本可以忽略。<br>2、APP加载非主dex的耗时问题。<br>在解决问题二之前，先分析一下Google给出的multidex方案。</p>
-<p><strong><big>官方方案:</big></strong><br>Googled的multidex support library集成方式非常简单，在gradle里设置相应的变量即可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">defaultConfig &#123;</span><br><span class="line">	multiDexEnable true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+        <p>对于大型Android，64k方法数限制和线性内存不足是必须要面对的问题，Google给出的解决方案是Multidex，即将代码拆分到几个dex中，以规避64k的上限限制。实际操作过程中，会遇到以下几个问题：<br>1、线性内存限制。解决方案是减少主dex大小，经验值是30k左右，一般在2.x机器上出现，由于产品已经只支持4.0以上rom，这个问题基本可以忽略。<br>2、APP加载非主dex的耗时问题。<br>在解决问题二之前，先分析一下Google给出的multidex方案。<br><a id="more"></a><br><strong><big>官方方案:</big></strong><br>Googled的multidex support library集成方式非常简单，在gradle里设置相应的变量即可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">defaultConfig &#123;</span><br><span class="line">	multiDexEnable true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>这样编译后会出现多个dex，以classes(N).dex的形式存在，处于安装包根目录，不放在常见的assets下的原因大概是因为art 虚拟机在安装时会把所有dex合并为oat文件而后加载。而dalvik虚拟机则只能自行解决非主dex的加载事宜。</p>
 <p>dex分包的规则由mainDexClasses脚本确定，它放在sdk build tools的dx.jar里。Gradle编译时会运行它确定哪些类放在主 dex里，需要注意的是编译时不会直接使用这个jar，所以修改它是无效的。dx.jar的流程分为三步：<br>1、环境检查，包括传入参数、路径、proguard等检查。<br>2、通过mainDexClasses规则，再利用proguard裁剪后，生成tmp.jar。<br>3、把tmp.jar转化为主dex的文件列表maindexlist。</p>
 <p>这里的rules只是简单把所有入口类以及直接引用类打入主dex中，所谓直接引用类是指某个类中的方法、变量所引用的类，例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public class A &#123;</span><br><span class="line">	public A() &#123;</span><br><span class="line">		B b = new B();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
@@ -304,6 +310,27 @@
     <div>
       
         
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>随意就好</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="http://7xvwnd.com1.z0.glb.clouddn.com/wechat-reward-image.png" alt="soarhe WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="http://7xvwnd.com1.z0.glb.clouddn.com/alipay-reward-image.jpg" alt="soarhe Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
 
       
     </div>
@@ -352,6 +379,10 @@
 
           
   <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/07/01/multidex/"
+           data-title="Multidex优化" data-url="http://yoursite.com/2016/07/01/multidex/">
+      </div>
     
   </div>
 
@@ -461,9 +492,28 @@
 
   
 
+  
+    
+  
 
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"soarhe"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
 
   
+    
+  
+
+
 
 
 
