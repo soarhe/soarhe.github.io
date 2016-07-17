@@ -1,0 +1,539 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="Java的序列化和反序列化是一项非常有用的特性，用于将Java对象转化为字节流，以便进行网络传输或者硬盘存储，随后，还能够把字节流还原为初始的对象，相当方便。
+在Android里，序列化的使用也非常广泛，例如Intent传递数据，sharepreference保存对象数据等。为此，Google开发了Parcelable接口来提供更为高效的序列化服务。
+两者的用法这里不再赘述，其区别在于，Parce">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Parcelable与Serializable(一)">
+<meta property="og:url" content="http://yoursite.com/2016/07/15/Parcelizable与Serializable对比/index.html">
+<meta property="og:site_name" content="soarhe">
+<meta property="og:description" content="Java的序列化和反序列化是一项非常有用的特性，用于将Java对象转化为字节流，以便进行网络传输或者硬盘存储，随后，还能够把字节流还原为初始的对象，相当方便。
+在Android里，序列化的使用也非常广泛，例如Intent传递数据，sharepreference保存对象数据等。为此，Google开发了Parcelable接口来提供更为高效的序列化服务。
+两者的用法这里不再赘述，其区别在于，Parce">
+<meta property="og:updated_time" content="2016-07-17T08:15:38.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Parcelable与Serializable(一)">
+<meta name="twitter:description" content="Java的序列化和反序列化是一项非常有用的特性，用于将Java对象转化为字节流，以便进行网络传输或者硬盘存储，随后，还能够把字节流还原为初始的对象，相当方便。
+在Android里，序列化的使用也非常广泛，例如Intent传递数据，sharepreference保存对象数据等。为此，Google开发了Parcelable接口来提供更为高效的序列化服务。
+两者的用法这里不再赘述，其区别在于，Parce">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"display":"remove"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/07/15/Parcelizable与Serializable对比/"/>
+
+  <title> Parcelable与Serializable(一) | soarhe </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  <div class="container one-collumn  page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">soarhe</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Parcelable与Serializable(一)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-07-15T23:22:25+08:00" content="2016-07-15">
+              2016-07-15
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/07/15/Parcelizable与Serializable对比/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/15/Parcelizable与Serializable对比/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Java的序列化和反序列化是一项非常有用的特性，用于将Java对象转化为字节流，以便进行网络传输或者硬盘存储，随后，还能够把字节流还原为初始的对象，相当方便。</p>
+<p>在Android里，序列化的使用也非常广泛，例如Intent传递数据，sharepreference保存对象数据等。为此，Google开发了Parcelable接口来提供更为高效的序列化服务。</p>
+<p>两者的用法这里不再赘述，其区别在于，Parcelable的序列化和反序列化方案由使用者实现，而Serializable通常作为一个标记使用，不需要使用者再增加实现代码。从性能上看，Parcelable的速度远快于Serializable，原因是后者需要反射几乎每一个变量，然后序列化写入，而前者由调用者决定序列化方案(包括写入哪些变量，是否有额外操作等)，没有用到任何反射。下面看一下两者的具体实现方式。</p>
+<h1 id="Serializable的文件保存格式"><a href="#Serializable的文件保存格式" class="headerlink" title="Serializable的文件保存格式"></a>Serializable的文件保存格式</h1><p>Android SDK中提供了ObjectOutputStream来实现序列化，这个类与JDK中同名类的实现稍有不同，不过整个流程是类似的。通常的序列化方式如下：<br>先定义一个序列化类<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyObj</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> a;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后用ObjectOutputStream序列化到本地文件里<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">String path = Environment.getExternalStorageDirectory().toString() + File.separator + <span class="string">"test.txt"</span>;</span><br><span class="line">MyObj obj = <span class="keyword">new</span> MyObj();</span><br><span class="line">obj.a = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    ObjectOutputStream os = <span class="keyword">new</span> ObjectOutputStream(<span class="keyword">new</span> FileOutputStream(path));</span><br><span class="line">    os.writeObject(obj);</span><br><span class="line">&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这时候实例obj中的数据已经写入到test.txt文件中，在分析文件内容之前先在ObjectStreamContants类里边找到相关协议常量：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span><br><span class="line"> * The stream header's magic number.</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">short</span> STREAM_MAGIC = (<span class="keyword">short</span>) <span class="number">0xaced</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> * The stream header's version number.</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">short</span> STREAM_VERSION = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> * Tag to mark a new class descriptor.</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">byte</span> TC_CLASSDESC = (<span class="keyword">byte</span>) <span class="number">0x72</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> * Tag to mark a new object.</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">byte</span> TC_OBJECT = (<span class="keyword">byte</span>) <span class="number">0x73</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> * Bit mask for the &#123;<span class="doctag">@code</span> flag&#125; field in &#123;<span class="doctag">@link</span> ObjectStreamClass&#125;. Indicates</span><br><span class="line"> * that a class implements &#123;<span class="doctag">@link</span> Serializable&#125; but not &#123;<span class="doctag">@link</span> Externalizable&#125;.</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">byte</span> SC_SERIALIZABLE = <span class="number">0x02</span>; </span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> * Tag to mark a &#123;<span class="doctag">@code</span> null&#125; object reference.</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">byte</span> TC_NULL = (<span class="keyword">byte</span>) <span class="number">0x70</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> * Tag to mark the end of block data blocks for an object.</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">byte</span> TC_ENDBLOCKDATA = (<span class="keyword">byte</span>) <span class="number">0x78</span>;</span><br></pre></td></tr></table></figure></p>
+<p>然后打开文件，可以看到：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">aced 0005 7372 0011 736f 6172 6865 2e74</span><br><span class="line">6573 742e 4d79 4f62 6a37 bfc9 2917 65cf</span><br><span class="line">2a02 0001 4900 0161 7870 0000 0002</span><br></pre></td></tr></table></figure></p>
+<p>我们把数据重新排列一下，变为：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">aced <span class="comment">// 文件头魔数</span></span><br><span class="line"><span class="number">0005</span> <span class="comment">// 协议版本号</span></span><br><span class="line"><span class="number">7372</span> <span class="comment">// 0x73指对象，0x72指其后为类描述</span></span><br><span class="line"><span class="number">0011</span> <span class="comment">// 类名长度，17个字符</span></span><br><span class="line"><span class="number">736f</span> <span class="number">6172</span> <span class="number">6865</span> <span class="number">2e74</span> <span class="number">6573</span> <span class="number">742</span>e <span class="number">4</span>d79 <span class="number">4f</span>62 <span class="number">6</span>a <span class="comment">// 类名:soarhe.test.myObj</span></span><br><span class="line"><span class="number">37</span> bfc9 <span class="number">2917</span> <span class="number">65</span>cf <span class="number">2</span>a <span class="comment">// Serial version UID</span></span><br><span class="line"><span class="number">02</span> <span class="comment">// Serializable，非Enternalizable</span></span><br><span class="line"><span class="number">0001</span> <span class="comment">// 类中field个数，myObj中只有一个int a。</span></span><br><span class="line"><span class="number">49</span> <span class="comment">// acsii码为I，即指int，表明field的类型。</span></span><br><span class="line"><span class="number">0001</span> <span class="comment">// 指field name长度，a的长度为1。</span></span><br><span class="line"><span class="number">61</span> <span class="comment">// 即field name，61的acsii码为a。</span></span><br><span class="line"><span class="number">7870</span> <span class="comment">// 78指类描述到此结束，70指null，即父类为null。</span></span><br><span class="line"><span class="number">0000</span> <span class="number">0002</span> <span class="comment">// a的value，即上面代码赋值的2。</span></span><br></pre></td></tr></table></figure></p>
+<p>可以发现，本地文件中首先描述类的定义，然后描述类中变量的数据，所以Serializable只会保存变量数据，不涉及到类中的方法。</p>
+<h1 id="Serializable序列化实现"><a href="#Serializable序列化实现" class="headerlink" title="Serializable序列化实现"></a>Serializable序列化实现</h1><p>对于自定义类，我们通常使用ObjectOutputStream的writeObject方法实现序列化，其基本流程是首先写入协议头，然后写入类描述，最后写入数据，下面看看代码：<br>在ObjectOutputStream的构造函数中，已经写入了魔数头和协议版本号<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ObjectOutputStream</span><span class="params">(OutputStream output)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    ... <span class="comment">// 省略</span></span><br><span class="line">    writeStreamHeader();</span><br><span class="line">    primitiveTypes = <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">writeStreamHeader</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    output.writeShort(STREAM_MAGIC);</span><br><span class="line">    output.writeShort(STREAM_VERSION);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用ObjectOutputStream.writeObject之后，真正做事的是writeObjectInternal：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">writeObjectInternal</span><span class="params">(Object object, <span class="keyword">boolean</span> unshared,</span><br><span class="line">            <span class="keyword">boolean</span> computeClassBasedReplacement,</span><br><span class="line">            <span class="keyword">boolean</span> computeStreamReplacement)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">        ... <span class="comment">// 省略</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 构建object所属类的描述类clDesc</span></span><br><span class="line">        Class&lt;?&gt; objClass = object.getClass();</span><br><span class="line">        ObjectStreamClass clDesc = ObjectStreamClass.lookupStreamClass(objClass);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Is it a Class ?</span></span><br><span class="line">        <span class="keyword">if</span> (objClass == ObjectStreamClass.CLASSCLASS) &#123;</span><br><span class="line">            <span class="keyword">return</span> writeNewClass((Class&lt;?&gt;) object, unshared);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Is it an ObjectStreamClass ?</span></span><br><span class="line">        <span class="keyword">if</span> (objClass == ObjectStreamClass.OBJECTSTREAMCLASSCLASS) &#123;</span><br><span class="line">            <span class="keyword">return</span> writeClassDesc((ObjectStreamClass) object, unshared);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Is it a String ? (instanceof, but == is faster)</span></span><br><span class="line">        <span class="keyword">if</span> (objClass == ObjectStreamClass.STRINGCLASS) &#123;</span><br><span class="line">            <span class="keyword">return</span> writeNewString((String) object, unshared);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Is it an Array ?</span></span><br><span class="line">        <span class="keyword">if</span> (objClass.isArray()) &#123;</span><br><span class="line">            <span class="keyword">return</span> writeNewArray(object, objClass, clDesc, objClass</span><br><span class="line">                     .getComponentType(), unshared);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (object <span class="keyword">instanceof</span> Enum) &#123;</span><br><span class="line">            <span class="keyword">return</span> writeNewEnum(object, objClass, unshared);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Not a String or Class or Array. Default procedure.</span></span><br><span class="line">        <span class="keyword">return</span> writeNewObject(object, objClass, clDesc, unshared);</span><br><span class="line"></span><br><span class="line">        ... <span class="comment">// 省略</span></span><br><span class="line">        </span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里主要关注writeNewObject，其他类型的写入方式都类似。<br>首先写入0x73，标记一个新对象；然后调用writeClassDesc()，写入该对象所属类的描述；最后调用writeHierarchy()写入类数据<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">writeNewObject</span><span class="params">(Object object, Class&lt;?&gt; theClass, ObjectStreamClass clDesc,</span><br><span class="line">        <span class="keyword">boolean</span> unshared)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    ... <span class="comment">// 省略</span></span><br><span class="line">    <span class="comment">// 这里写入0x73，标记一个新对象。</span></span><br><span class="line">    output.writeByte(TC_OBJECT);</span><br><span class="line">    <span class="comment">// 这里写入类描述。</span></span><br><span class="line">    writeClassDesc(clDesc, <span class="keyword">false</span>);</span><br><span class="line">    <span class="keyword">int</span> previousHandle = -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (unshared) &#123;</span><br><span class="line">        previousHandle = objectsWritten.get(object);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> handle = registerObjectWritten(object);</span><br><span class="line"></span><br><span class="line">    currentObject = object;</span><br><span class="line">    currentClass = clDesc;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (externalizable) &#123;</span><br><span class="line">            <span class="comment">// externalizable 操作</span></span><br><span class="line">            ... <span class="comment">// 省略</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123; </span><br><span class="line">            <span class="comment">// 这里写入类数据</span></span><br><span class="line">            writeHierarchy(object, currentClass);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// 释放工作</span></span><br><span class="line">        ... <span class="comment">// 省略</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> handle;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>先看一下writeClassDesc()中的操作是否能与前面提到的本地文件格式对应，其源码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">writeClassDesc</span><span class="params">(ObjectStreamClass classDesc, <span class="keyword">boolean</span> unshared)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="comment">// 如果classDesc为null，则写入0x70</span></span><br><span class="line">    <span class="keyword">if</span> (classDesc == <span class="keyword">null</span>) &#123;</span><br><span class="line">        writeNull();</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> handle = -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (!unshared) &#123;</span><br><span class="line">        handle = dumpCycle(classDesc);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (handle == -<span class="number">1</span>) &#123;</span><br><span class="line">        </span><br><span class="line">        ... <span class="comment">// 省略</span></span><br><span class="line">        <span class="comment">// 这里写入0x72， 标记为类描述开始</span></span><br><span class="line">        output.writeByte(TC_CLASSDESC);</span><br><span class="line">        <span class="comment">// 这里无论是哪个protocal_version，最终都会调入writeNewClassDesc()</span></span><br><span class="line">        <span class="keyword">if</span> (protocolVersion == PROTOCOL_VERSION_1) &#123;</span><br><span class="line">            writeNewClassDesc(classDesc);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// So write...() methods can be used by</span></span><br><span class="line">            <span class="comment">// subclasses during writeClassDescriptor()</span></span><br><span class="line">            primitiveTypes = output;</span><br><span class="line">            writeClassDescriptor(classDesc);</span><br><span class="line">            primitiveTypes = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        ... <span class="comment">// 省略</span></span><br><span class="line">        <span class="comment">// 写入0x78，标记为一个block结束，这里指类描述结束</span></span><br><span class="line">        output.writeByte(TC_ENDBLOCKDATA);</span><br><span class="line">        <span class="comment">// 当前类写入完毕之后，递归写入父类描述</span></span><br><span class="line">        writeClassDesc(classDesc.getSuperclass(), unshared);</span><br><span class="line">        ... <span class="comment">// 省略</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> handle;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>再观察writeNewClassDesc()的源码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">writeNewClassDesc</span><span class="params">(ObjectStreamClass classDesc)</span></span><br><span class="line">        <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="comment">// 写入类名</span></span><br><span class="line">    output.writeUTF(classDesc.getName());</span><br><span class="line">    <span class="comment">// 写入sID</span></span><br><span class="line">    output.writeLong(classDesc.getSerialVersionUID());</span><br><span class="line">    ... <span class="comment">// 省略</span></span><br><span class="line">    <span class="comment">// 写入变量描述</span></span><br><span class="line">    writeFieldDescriptors(classDesc, externalizable);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最后在writeFieldDescriptors()中可以看到，反射了类中所有的field，然后一一写入它们的描述，如果某个field仍是自定义类，若该类仍然是Serializable，那么就继续写入它的描述，否则抛出异常。这里用到的反射也就是Serializable慢于Parcelable的原因。具体反射field的实现可以参见ObjectStreamClass中的buildFieldDescriptors方法，该方法比较长，这里就不再贴了。</p>
+<p>类的描述写入完毕之后，下一步就是写入类的数据，具体实现就在writeHierarchy方法中：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">writeHierarchy</span><span class="params">(Object object, ObjectStreamClass classDesc)</span></span><br><span class="line">        <span class="keyword">throws</span> IOException, NotActiveException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (object == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NotActiveException();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 从子类开始写入数据，然后向父类方向追溯写入。</span></span><br><span class="line">    List&lt;ObjectStreamClass&gt; hierarchy = classDesc.getHierarchy();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, end = hierarchy.size(); i &lt; end; ++i) &#123;</span><br><span class="line">        ObjectStreamClass osc = hierarchy.get(i);</span><br><span class="line">        currentObject = object;</span><br><span class="line">        currentClass = osc;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果object自带writeObject方法，那么调用它，否则调用defaultWriteObject</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">boolean</span> executed = <span class="keyword">false</span>;</span><br><span class="line">            <span class="keyword">if</span> (osc.hasMethodWriteObject()) &#123;</span><br><span class="line">                <span class="keyword">final</span> Method method = osc.getMethodWriteObject();</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    method.invoke(object, <span class="keyword">new</span> Object[] &#123; <span class="keyword">this</span> &#125;);</span><br><span class="line">                    executed = <span class="keyword">true</span>;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">                    Throwable ex = e.getTargetException();</span><br><span class="line">                    <span class="keyword">if</span> (ex <span class="keyword">instanceof</span> RuntimeException) &#123;</span><br><span class="line">                        <span class="keyword">throw</span> (RuntimeException) ex;</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ex <span class="keyword">instanceof</span> Error) &#123;</span><br><span class="line">                        <span class="keyword">throw</span> (Error) ex;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">throw</span> (IOException) ex;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e.toString());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (executed) &#123;</span><br><span class="line">                drain();</span><br><span class="line">                output.writeByte(TC_ENDBLOCKDATA);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// If the object did not have a writeMethod, call</span></span><br><span class="line">                <span class="comment">// defaultWriteObject</span></span><br><span class="line">                defaultWriteObject();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// Cleanup, needs to run always so that we can later detect</span></span><br><span class="line">            <span class="comment">// invalid calls to defaultWriteObject</span></span><br><span class="line">            currentObject = <span class="keyword">null</span>;</span><br><span class="line">            currentClass = <span class="keyword">null</span>;</span><br><span class="line">            currentPutField = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，写入顺序是从子类开始，然后父类，直到根部。另一方面，如果object(这个object就是最开始调用writeObject方法时传入的参数)自带writeObject方法，那么调用之，否则调用默认的defaultWriteObject。这说明Serializable是支持自定义序列化实现方式的。</p>
+<h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><p>Serializable常常用于网络传输，那么数据安全性是必须考虑的问题，我们可以利用其支持自定义序列化方案的特点来实现该功能，首先把password声明为transient，这样defaultWriteObject时就会忽略该字段；然后在调用自定义writeObject时，给password加密后再写入。反序列化时则把整个过程逆向一遍。这样一来，就可以做到对敏感信息的保护。代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> String username;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">transient</span> String password;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">writeObject</span><span class="params">(ObjectOutputStream out)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            out.defaultWriteObject();</span><br><span class="line">            <span class="comment">// 加密</span></span><br><span class="line">            password = <span class="string">"encryptedpassword"</span>;</span><br><span class="line">            out.writeObject(password);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">readObject</span><span class="params">(ObjectInputStream in)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            in.defaultReadObject();</span><br><span class="line">            password = (String) in.readObject();</span><br><span class="line">            <span class="comment">// 解密</span></span><br><span class="line">            password = <span class="string">"unencryptedpassword"</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>随意就好</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span onmouseover="this.style.color='rgb(236,96,0)';this.style.background='rgb(204,204,204)'" onMouseOut="this.style.color='#fff';this.style.background='rgb(236,96,0)'" style="display: inline-block; width: 70px; height: 70px; border-radius: 100%; line-height: 81px; color: #fff; font: 400 35px/75px 'microsofty'; background: rgb(236,96,0)">赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="http://7xvwnd.com1.z0.glb.clouddn.com/wechat-reward-image.png" alt="soarhe WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="http://7xvwnd.com1.z0.glb.clouddn.com/alipay-reward-image.jpg" alt="soarhe Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag">#Android</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/01/multidex/" rel="next" title="Multidex优化">
+                <i class="fa fa-chevron-left"></i> Multidex优化
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/07/15/Parcelizable与Serializable对比/"
+           data-title="Parcelable与Serializable(一)" data-url="http://yoursite.com/2016/07/15/Parcelizable与Serializable对比/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">soarhe</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"soarhe"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>
